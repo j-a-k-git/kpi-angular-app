@@ -1,0 +1,28 @@
+<form [formGroup]="$categoryForm" (ngSubmit)="onSave()">
+  <h2 mat-dialog-title>
+    <span [innerText]="$data ? 'Edit category' : 'Add category'"></span>
+    <mat-divider></mat-divider>
+  </h2>
+
+  <mat-dialog-content class="mat-typography">
+    <div class="container" fxLayout="column" fxLayoutAlign="center space-between" fxLayoutGap="10px">
+      <mat-form-field fxFlex="100%">
+        <input matInput placeholder="Title" formControlName="title" required>
+        <mat-hint>The title of this category?</mat-hint>
+        <mat-error *ngIf="title.hasError('required')">
+          Title is <strong>required</strong>
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="container" fxLayout="column" fxLayoutAlign="center space-between" fxLayoutGap="10px">
+      <mat-form-field fxFlex="100%">
+        <textarea matInput placeholder="Description" formControlName="description"></textarea>
+        <mat-hint>Any description?</mat-hint>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button type="submit" cdkFocusInitial>Save</button>
+  </mat-dialog-actions>
+</form>

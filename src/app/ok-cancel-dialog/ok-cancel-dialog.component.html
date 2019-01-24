@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>
+  <span [innerText]="$data.title"></span>
+  <mat-divider></mat-divider>
+</h2>
+
+<mat-dialog-content class="mat-typography">
+  <h4 [innerText]="$data.message"></h4>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="$data.cancelValue" cdkFocusInitial>Cancel</button>
+  <button mat-button [mat-dialog-close]="$data.okValue">Ok</button>
+</mat-dialog-actions>

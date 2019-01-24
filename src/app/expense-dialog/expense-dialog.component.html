@@ -1,0 +1,59 @@
+<form [formGroup]="$expenseForm" (ngSubmit)="onSave()">
+  <h2 mat-dialog-title>
+    <span [innerText]="$data ? 'Edit expense' : 'Add expense'"></span>
+    <mat-divider></mat-divider>
+  </h2>
+
+  <mat-dialog-content class="mat-typography">
+    <div class="container" fxLayout="column" fxLayoutAlign="center space-between" fxLayoutGap="10px">
+      <mat-form-field fxFlex="100%">
+        <input matInput placeholder="Title" formControlName="title" required>
+        <mat-hint>Where did you spend the money?</mat-hint>
+        <mat-error *ngIf="title.hasError('required')">
+          Title is <strong>required</strong>
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="container" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="10px">
+      <mat-form-field fxFlex="50%">
+        <input matInput placeholder="Amount" type="number" formControlName="amount">
+        <span matPrefix>₹&nbsp;</span>
+        <mat-hint>How much?</mat-hint>
+        <mat-error *ngIf="amount.hasError('min') && !amount.hasError('required')">
+          Amount must be greater than zero.
+        </mat-error>
+        <mat-error *ngIf="amount.hasError('required')">
+          Amount is <strong>required</strong>
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field fxFlex="50%">
+        <mat-select placeholder="Category" formControlName="categoryId">
+          <mat-option value="option">Option</mat-option>
+        </mat-select>
+        <mat-hint>Can you tell on what type exactly?</mat-hint>
+        <mat-error *ngIf="categoryId.hasError('required')">
+          Please <strong>select</strong> a category
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="container" fxLayout="column" fxLayoutAlign="center space-between" fxLayoutGap="10px">
+      <mat-form-field>
+        <input matInput [matDatepicker]="picker" placeholder="Date" formControlName="date">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-hint>When did this happen?</mat-hint>
+        <mat-error *ngIf="date.hasError('validdate')">
+          Date is <strong>invalid</strong>
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field fxFlex="100%">
+        <textarea matInput placeholder="Description" formControlName="description"></textarea>
+        <mat-hint>Any notes to remember?</mat-hint>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button type="submit" cdkFocusInitial>Save</button>
+  </mat-dialog-actions>
+</form>

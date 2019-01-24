@@ -1,0 +1,41 @@
+mat-sidenav-container {
+    height: 100%;
+}
+
+mat-sidenav-container mat-sidenav {
+    width: 300px;
+}
+
+mat-list-item mat-icon {
+    padding: 0 14px !important;
+    color: #555555;
+}
+
+mat-list-item mat-icon:last-child {
+    margin-left: auto;
+}
+
+mat-list-item.activeComponent {
+    background-color: #e8f0fe !important;
+}
+
+:host mat-list-item /deep/ .mat-list-item-content {
+    padding: 0!important;
+}
+
+mat-list-item .activeIndicator {
+    order: -1;
+    display: block;
+    height: 100%;
+    width: 8px;
+    background-color: transparent;
+    transition: background-color 400ms ease;
+}
+
+mat-list-item.activeComponent .activeIndicator {
+    background-color: #3f51b5;
+}
+
+mat-sidenav-content {
+    padding: 0 16px;
+}

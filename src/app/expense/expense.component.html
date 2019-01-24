@@ -1,0 +1,81 @@
+<div>
+  <div class="container" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="10px" fxLayout.xs="column"
+    fxLayoutAlign.xs="start center" fxLayoutGap.xs="0">
+    <h4 class="mat-h2 component-heading" *ngIf="!$SideNavOpen" fxFlex="20%">{{$currentComponent}}</h4>
+    <mat-form-field fxFlex="50%">
+      <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
+    </mat-form-field>
+    <button mat-button class="grey-btn" [disabled]="!$selection.hasValue()" matTooltip="Deletes all selected items"
+      (click)="onDeleteMultiple($selection)">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+    <button mat-raised-button color="primary" class="align-flex-right" matTooltip="Adds new expense to the list"
+      (click)="onAdd()">
+      <mat-icon>add</mat-icon>
+      Expense
+    </button>
+  </div>
+
+  <table mat-table [dataSource]="$dataSource" matSort class="mat-elevation-z8">
+    <!-- Checkbox Column -->
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef style="width:40px;">
+        <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="$selection.hasValue() && isAllSelected()"
+          [indeterminate]="$selection.hasValue() && !isAllSelected()">
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? $selection.toggle(row) : null" [checked]="$selection.isSelected(row)">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <!-- Date Column -->
+    <ng-container matColumnDef="position">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:15%;"> Date </th>
+      <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+    </ng-container>
+
+    <!-- Title & Description Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Title </th>
+      <td mat-cell *matCellDef="let element">
+        <p class="mat-body-1 no-mar-btm">
+          {{element.name}}
+        </p>
+        <p class="mat-caption no-mar-top">
+          {{element.name}}
+        </p>
+      </td>
+    </ng-container>
+
+    <!-- Category Column -->
+    <ng-container matColumnDef="weight">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:15%;"> Category </th>
+      <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+    </ng-container>
+
+    <!-- Amount Column -->
+    <ng-container matColumnDef="symbol">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:10%;"> Amount </th>
+      <td mat-cell *matCellDef="let element" align="right" class="pad-rt-20">₹ {{ element.weight | number:'1.2-2'}}</td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef style="width:100px;"> Actions </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button class="grey-btn" matTooltip="Edit this item" (click)="onEdit(element)">
+          <mat-icon [inline]="true" class="small-icon">edit</mat-icon>
+        </button>
+        <button mat-icon-button class="grey-btn" matTooltip="Delete this item" (click)="onDelete(element)">
+          <mat-icon [inline]="true" class="small-icon">delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="$displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: $displayedColumns;"></tr>
+  </table>
+</div>

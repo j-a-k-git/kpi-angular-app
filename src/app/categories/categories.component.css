@@ -1,0 +1,29 @@
+table {
+    width: 100%;
+}
+
+table th.mat-sort-header-sorted {
+    color: black;
+}
+
+table th.mat-header-cell {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.align-flex-right {
+    margin-left: auto;
+}
+
+button.grey-btn {
+    color: #787878;
+}
+
+.small-icon {
+    font-size: 1.3rem;
+}
+
+.component-heading {
+    margin-bottom: 0;
+    color: #666666;
+}

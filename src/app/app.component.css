@@ -1,0 +1,4 @@
+app-sidenav {
+    display: block;
+    height: calc(100% - 64px);
+}

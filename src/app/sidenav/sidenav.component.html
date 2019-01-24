@@ -1,0 +1,16 @@
+<mat-sidenav-container [hasBackdrop]="false">
+  <mat-sidenav [mode]="'side'" opened>
+    <mat-nav-list>
+      <mat-list-item *ngFor="let $route of $routes" [routerLink]="$route.route" routerLinkActive="activeComponent"
+        [routerLinkActiveOptions]="{exact: true}" #$rla="routerLinkActive">
+        <div class="activeIndicator"></div>
+        <mat-icon matListIcon>{{$route.icon}}</mat-icon>
+        <span [innerText]="$route.title"></span>
+        <mat-icon *ngIf="$rla.isActive">chevron_right</mat-icon>
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>
