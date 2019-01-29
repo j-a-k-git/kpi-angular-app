@@ -1,56 +1,66 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
-import { MatTableDataSource, MatSort } from '@angular/material';
+import { MatTableDataSource, MatSort, MatSnackBar } from '@angular/material';
 import { MatDialog } from '@angular/material';
 import { ExpenseDialogComponent } from '../expense-dialog/expense-dialog.component';
 import { OkCancelDialogComponent } from '../ok-cancel-dialog/ok-cancel-dialog.component';
-import { ActiveRoutesService } from '../services/active-routes.service';
+import { AppNavigationService, NavBarStatus } from '../services/app-navigation/app-navigation.service';
+import { ExpenseItem, ExpenseService, ExpenseItemVM } from 'xpense-api';
+import { Subscription } from 'rxjs';
+import { SlideInOutAnimation } from '../animations/slide-in-out-animation';
 
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
-];
 
 @Component({
   selector: 'app-expense',
   templateUrl: './expense.component.html',
-  styleUrls: ['./expense.component.css']
+  styleUrls: ['./expense.component.css'],
+  animations: [
+    SlideInOutAnimation
+  ]
 })
-export class ExpenseComponent implements OnInit {
+export class ExpenseComponent implements OnInit, OnDestroy {
 
-  $displayedColumns: string[] = ['select', 'position', 'name', 'weight', 'symbol', 'actions'];
-  $dataSource = new MatTableDataSource(ELEMENT_DATA);
-  $selection = new SelectionModel<PeriodicElement>(true, []);
+  $displayedColumns: string[] = ['select', 'spendDate', 'heading', 'category', 'cost', 'actions'];
+  $displayedFooterColumns: string[] = ['select', 'heading', 'category', 'cost'];
+  $dataSource: MatTableDataSource<ExpenseItemVM>;
+  $selection = new SelectionModel<ExpenseItemVM>(true, []);
   $currentComponent: string = "";
-  $SideNavOpen: boolean = true;
-  @ViewChild(MatSort) sort: MatSort;
+  $sideNavOpen: boolean = true;
+  @ViewChild(MatSort) $sort: MatSort;
 
-  constructor(public dialog: MatDialog, private _activeRouteService: ActiveRoutesService) { }
+  private _navBarSubscription: Subscription
+
+  constructor(
+    private _dialog: MatDialog,
+    private _appNavService: AppNavigationService,
+    private _eSvc: ExpenseService,
+    private _snackBar: MatSnackBar) {
+  }
+
+  refreshView() {
+    this._eSvc.getAll().subscribe({
+      next: (data: ExpenseItemVM[]) => {
+        this.$selection.clear();
+        this.$dataSource = new MatTableDataSource(data);
+        this.$dataSource.sort = this.$sort;
+      },
+      error: () => this._snackBar.open("Some error occured!", "Got it :(")
+    })
+  }
 
   ngOnInit() {
-    this.$dataSource.sort = this.sort;
-    this._activeRouteService.SideNavToggled.subscribe(x => {
-      console.log("x:", x);
-      if (x != null) {
-        this.$SideNavOpen = x.sideNavStatus == "open";
-        this.$currentComponent = x.currentRoute.title;
-      }
-    })
+    this.$sideNavOpen = this._appNavService.appDrawerStatus == "open";
+    this._navBarSubscription = this._appNavService.NavBarStatusChanged
+      .subscribe((navBarStatus: NavBarStatus) => {
+        this.$currentComponent = navBarStatus.activeRoute.title;
+      })
+    this._appNavService.NavBarOpenStarted.subscribe(() => this.$sideNavOpen = true)
+    this._appNavService.NavBarCloseStarted.subscribe(() => this.$sideNavOpen = false)
+    this.refreshView();
+  }
+
+  ngOnDestroy(): void {
+    this._navBarSubscription.unsubscribe();
   }
 
   applyFilter(filterValue: string) {
@@ -71,28 +81,46 @@ export class ExpenseComponent implements OnInit {
       this.$dataSource.data.forEach(row => this.$selection.select(row));
   }
 
+  getTotalExpense() {
+    if (!this.$dataSource)
+      return 0;
+    return this.$dataSource.data.map(t => t.cost).reduce((acc, value) => acc + value, 0);
+  }
+
   onAdd() {
-    const dialogRef = this.dialog.open(ExpenseDialogComponent);
+    const dialogRef = this._dialog.open(ExpenseDialogComponent);
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: ExpenseItem) => {
       if (result) {
-        // create the item
+        this._eSvc.create(result).subscribe({
+          next: () => {
+            this._snackBar.open("Expense item created!", "Okay", { duration: 2000, });
+            this.refreshView();
+          },
+          error: () => this._snackBar.open("Some error occured!", "Got it :(")
+        })
       }
     });
   }
 
-  onEdit(item) {
-    const dialogRef = this.dialog.open(ExpenseDialogComponent, { data: { title: item.name } });
+  onEdit(item: ExpenseItemVM) {
+    const dialogRef = this._dialog.open(ExpenseDialogComponent, { data: item });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: ExpenseItem) => {
       if (result) {
-        // update the item
+        this._eSvc.update(item.id, result).subscribe({
+          next: () => {
+            this._snackBar.open("Expense item updated!", "Okay", { duration: 2000, });
+            this.refreshView();
+          },
+          error: () => this._snackBar.open("Some error occured!", "Got it :(")
+        })
       }
     });
   }
 
-  onDelete(item: PeriodicElement) {
-    const dialogRef = this.dialog.open(OkCancelDialogComponent, {
+  onDelete(item: ExpenseItemVM) {
+    const dialogRef = this._dialog.open(OkCancelDialogComponent, {
       data:
       {
         title: "Confirm delete",
@@ -104,13 +132,19 @@ export class ExpenseComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // delete the item
+        this._eSvc.delete(item.id).subscribe({
+          next: () => {
+            this._snackBar.open("Expense item deleted!", "Okay", { duration: 2000, });
+            this.refreshView();
+          },
+          error: () => this._snackBar.open("Some error occured!", "Got it :(")
+        })
       }
     });
   }
 
-  onDeleteMultiple(items: SelectionModel<PeriodicElement>) {
-    const dialogRef = this.dialog.open(OkCancelDialogComponent, {
+  onDeleteMultiple(items: SelectionModel<ExpenseItemVM>) {
+    const dialogRef = this._dialog.open(OkCancelDialogComponent, {
       data:
       {
         title: `Confirm delete ${items.selected.length} seletced`,
@@ -122,7 +156,13 @@ export class ExpenseComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // delete the items
+        this._eSvc.deleteMany(items.selected.map(item => item.id)).subscribe({
+          next: () => {
+            this._snackBar.open("Expense items deleted!", "Okay", { duration: 2000, });
+            this.refreshView();
+          },
+          error: () => this._snackBar.open("Some error occured!", "Got it :(")
+        })
       }
     });
   }

@@ -15,7 +15,7 @@ export interface OkCancelDialogConfig {
 })
 export class OkCancelDialogComponent {
 
-  constructor(private dialogRef: MatDialogRef<OkCancelDialogComponent>,
+  constructor(private _dialogRef: MatDialogRef<OkCancelDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public $data: OkCancelDialogConfig) {
       
   }

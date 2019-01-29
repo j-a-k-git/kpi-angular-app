@@ -1,25 +1,41 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { MatSidenav } from '@angular/material';
-import { ActiveRoutesService } from '../services/active-routes.service';
-import { from } from 'rxjs';
+import { AppNavigationService } from '../services/app-navigation/app-navigation.service';
 
 @Component({
   selector: 'app-sidenav',
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.css']
 })
-export class SidenavComponent {
+export class SidenavComponent implements OnInit {
 
   @ViewChild(MatSidenav)
-  private $sidenavComponent: MatSidenav;
+  private _sidenavComponent: MatSidenav;
 
-  $routes: any[];
-  constructor(public activeRouteService: ActiveRoutesService) {
-    this.$routes = activeRouteService.routes;
+  public $appDrawerOpened: boolean
+  public $routes: any[];
+
+  constructor(private _appNavService: AppNavigationService) {
+    this.$routes = _appNavService.routes;
+    this.$appDrawerOpened = _appNavService.appDrawerStatus == "open";
+  }
+
+  ngOnInit(): void {
+    this._sidenavComponent.openedChange.subscribe((x: boolean) => {
+      this._appNavService.onSideNavToggled(x ? "open" : "close");
+    })
+
+    this._sidenavComponent.closedStart.subscribe(() => {
+      this._appNavService.onSideNavCloseStart();
+    })
+
+    this._sidenavComponent.openedStart.subscribe(() => {
+      this._appNavService.onSideNavOpenStart();
+    })
   }
 
   toggleSideNav() {
-    return from(this.$sidenavComponent.toggle()).subscribe(x => this.activeRouteService.toogleSideNav(x));
+    this.$appDrawerOpened = !this.$appDrawerOpened;
   }
 
 }

@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ActiveRoutesService } from './active-routes.service';
+import { AppNavigationService } from './app-navigation.service';
 
 describe('ActiveRoutesService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: ActiveRoutesService = TestBed.get(ActiveRoutesService);
+    const service: AppNavigationService = TestBed.get(AppNavigationService);
     expect(service).toBeTruthy();
   });
 });

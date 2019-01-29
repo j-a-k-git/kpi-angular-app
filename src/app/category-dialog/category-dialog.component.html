@@ -7,9 +7,9 @@
   <mat-dialog-content class="mat-typography">
     <div class="container" fxLayout="column" fxLayoutAlign="center space-between" fxLayoutGap="10px">
       <mat-form-field fxFlex="100%">
-        <input matInput placeholder="Title" formControlName="title" required>
+        <input matInput placeholder="Title" formControlName="label" required>
         <mat-hint>The title of this category?</mat-hint>
-        <mat-error *ngIf="title.hasError('required')">
+        <mat-error *ngIf="label.hasError('required')">
           Title is <strong>required</strong>
         </mat-error>
       </mat-form-field>

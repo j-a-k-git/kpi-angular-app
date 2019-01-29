@@ -1,5 +1,5 @@
 <mat-sidenav-container [hasBackdrop]="false">
-  <mat-sidenav [mode]="'side'" opened>
+  <mat-sidenav [mode]="'side'" [opened]="$appDrawerOpened">
     <mat-nav-list>
       <mat-list-item *ngFor="let $route of $routes" [routerLink]="$route.route" routerLinkActive="activeComponent"
         [routerLinkActiveOptions]="{exact: true}" #$rla="routerLinkActive">

@@ -17,6 +17,14 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "xpense-api": [
+        "./dist/xpense-api"
+      ],
+      "xpense-api/*": [
+        "./dist/xpense-api/*"
+      ]
+    }
   }
 }

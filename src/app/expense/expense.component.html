@@ -1,14 +1,16 @@
 <div>
   <div class="container" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="10px" fxLayout.xs="column"
     fxLayoutAlign.xs="start center" fxLayoutGap.xs="0">
-    <h4 class="mat-h2 component-heading" *ngIf="!$SideNavOpen" fxFlex="20%">{{$currentComponent}}</h4>
+    <h4 class="mat-h2 component-heading" *ngIf="!$sideNavOpen" [@slideInOut] fxFlex="25%">{{$currentComponent}}</h4>
     <mat-form-field fxFlex="50%">
       <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
     </mat-form-field>
-    <button mat-button class="grey-btn" [disabled]="!$selection.hasValue()" matTooltip="Deletes all selected items"
+    <button mat-icon-button class="grey-btn" matTooltip="Refresh" (click)="refreshView()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <button mat-icon-button class="grey-btn" [disabled]="!$selection.hasValue()" matTooltip="Deletes all selected items"
       (click)="onDeleteMultiple($selection)">
       <mat-icon>delete</mat-icon>
-      Delete
     </button>
     <button mat-raised-button color="primary" class="align-flex-right" matTooltip="Adds new expense to the list"
       (click)="onAdd()">
@@ -29,37 +31,46 @@
         <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? $selection.toggle(row) : null" [checked]="$selection.isSelected(row)">
         </mat-checkbox>
       </td>
+      <td mat-footer-cell *matFooterCellDef align="right" colspan="2" class="pad-rt-20"> Items : </td>
     </ng-container>
 
     <!-- Date Column -->
-    <ng-container matColumnDef="position">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:15%;"> Date </th>
-      <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+    <ng-container matColumnDef="spendDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:15%;"> Expense date </th>
+      <td mat-cell *matCellDef="let element"> {{element.spendDate | date:'shortDate'}} </td>
     </ng-container>
 
     <!-- Title & Description Column -->
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Title </th>
+    <ng-container matColumnDef="heading">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Title & Description</th>
       <td mat-cell *matCellDef="let element">
         <p class="mat-body-1 no-mar-btm">
-          {{element.name}}
+          {{element.heading}}
         </p>
         <p class="mat-caption no-mar-top">
-          {{element.name}}
+          {{element.notes}}
         </p>
+      </td>
+      <td mat-footer-cell *matFooterCellDef align="left">
+        {{ $dataSource && $dataSource.data ? $dataSource.data.length : 0 }}
       </td>
     </ng-container>
 
     <!-- Category Column -->
-    <ng-container matColumnDef="weight">
+    <ng-container matColumnDef="category">
       <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:15%;"> Category </th>
-      <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.category.label}} </td>
+      <td mat-footer-cell *matFooterCellDef align="right" class="pad-rt-20"> Total : </td>
     </ng-container>
 
     <!-- Amount Column -->
-    <ng-container matColumnDef="symbol">
+    <ng-container matColumnDef="cost">
       <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:10%;"> Amount </th>
-      <td mat-cell *matCellDef="let element" align="right" class="pad-rt-20">₹ {{ element.weight | number:'1.2-2'}}</td>
+      <!-- <td mat-cell *matCellDef="let element" align="right" class="pad-rt-20">₹ {{ element.cost | number:'1.2-2'}}</td> -->
+      <td mat-cell *matCellDef="let element" align="right" class="pad-rt-20">{{ element.cost | currency:'INR' }}</td>
+      <td mat-footer-cell *matFooterCellDef align="right" class="pad-rt-20">
+        {{ getTotalExpense() | currency:'INR' }}
+      </td>
     </ng-container>
 
     <!-- Actions Column -->
@@ -77,5 +88,7 @@
 
     <tr mat-header-row *matHeaderRowDef="$displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: $displayedColumns;"></tr>
+    <tr mat-footer-row *matFooterRowDef="$displayedFooterColumns;"></tr>
+
   </table>
 </div>

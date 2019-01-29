@@ -2,3 +2,7 @@ app-sidenav {
     display: block;
     height: calc(100% - 64px);
 }
+
+mat-progress-bar {
+    margin-top: -4px;
+}

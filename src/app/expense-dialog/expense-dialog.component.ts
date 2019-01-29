@@ -2,14 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { DateValidators } from '../validators/DateValidators';
-
-export interface ExpenseItem {
-  title: string,
-  amount: Number,
-  categoryId: Number,
-  date: Date,
-  description: string
-}
+import { ExpenseItem, ExpenseItemVM, CategoryService, CategoryItemVM } from 'xpense-api';
 
 @Component({
   selector: 'app-expense-dialog',
@@ -19,38 +12,47 @@ export interface ExpenseItem {
 export class ExpenseDialogComponent implements OnInit {
 
   $expenseForm: FormGroup;
+  $categories: CategoryItemVM[];
 
-  get title(): any { return this.$expenseForm.get('title'); }
-  get amount(): any { return this.$expenseForm.get('amount'); }
+  get heading(): any { return this.$expenseForm.get('heading'); }
+  get cost(): any { return this.$expenseForm.get('cost'); }
   get categoryId(): any { return this.$expenseForm.get('categoryId'); }
-  get date(): any { return this.$expenseForm.get('date'); }
-  get description(): any { return this.$expenseForm.get('description'); }
+  get spendDate(): any { return this.$expenseForm.get('spendDate'); }
+  get notes(): any { return this.$expenseForm.get('notes'); }
 
   constructor(
-    private fb: FormBuilder,
-    private dialogRef: MatDialogRef<ExpenseDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) private expenseItem: ExpenseItem) {
+    private _fb: FormBuilder,
+    private _cSvc: CategoryService,
+    private _dialogRef: MatDialogRef<ExpenseDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) private _expenseItem: ExpenseItemVM) {
   }
 
   ngOnInit(): void {
-    this.$expenseForm = this.fb.group({
-      title: ['', Validators.required],
-      amount: ['', [Validators.required, Validators.min(0)]],
+    this.$expenseForm = this._fb.group({
+      heading: ['', Validators.required],
+      cost: ['', [Validators.required, Validators.min(0)]],
       categoryId: ['', Validators.required],
-      date: ['', [DateValidators.valid]],
-      description: [''],
+      spendDate: ['', [DateValidators.valid]],
+      notes: [''],
     });
 
-    if (this.expenseItem) {
-      this.$expenseForm.patchValue(this.expenseItem)
+    this._cSvc.getAll().subscribe((data: CategoryItemVM[]) => {
+      this.$categories = data;
+    })
+
+    if (this._expenseItem) {
+      this.$expenseForm.patchValue(this._expenseItem)
+      this.$expenseForm.patchValue({
+        spendDate: new Date(this._expenseItem.spendDate),
+        categoryId: this._expenseItem.category.id
+      });
     }
   }
 
   onSave() {
     this.$expenseForm.updateValueAndValidity();
     if (this.$expenseForm.valid) {
-      console.warn(this.$expenseForm.value);
-      this.dialogRef.close(this.$expenseForm.value);
+      this._dialogRef.close(ExpenseItem.from(this.$expenseForm.value));
     }
   }
 }
