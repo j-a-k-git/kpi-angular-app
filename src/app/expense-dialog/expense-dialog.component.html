@@ -1,6 +1,6 @@
 <form [formGroup]="$expenseForm" (ngSubmit)="onSave()">
   <h2 mat-dialog-title>
-    <span [innerText]="$data ? 'Edit expense' : 'Add expense'"></span>
+    <span [innerText]="$editMode ? 'Edit expense' : 'Add expense'"></span>
     <mat-divider></mat-divider>
   </h2>
 

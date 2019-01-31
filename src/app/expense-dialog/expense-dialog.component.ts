@@ -12,6 +12,7 @@ import { ExpenseItem, ExpenseItemVM, CategoryService, CategoryItemVM } from 'xpe
 export class ExpenseDialogComponent implements OnInit {
 
   $expenseForm: FormGroup;
+  $editMode: boolean = false;
   $categories: CategoryItemVM[];
 
   get heading(): any { return this.$expenseForm.get('heading'); }
@@ -41,6 +42,7 @@ export class ExpenseDialogComponent implements OnInit {
     })
 
     if (this._expenseItem) {
+      this.$editMode = true;
       this.$expenseForm.patchValue(this._expenseItem)
       this.$expenseForm.patchValue({
         spendDate: new Date(this._expenseItem.spendDate),

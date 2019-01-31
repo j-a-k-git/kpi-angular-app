@@ -11,6 +11,7 @@ import { CategoryItemVM, CategoryItem } from 'xpense-api';
 export class CategoryDialogComponent implements OnInit {
 
   $categoryForm: FormGroup;
+  $editMode: boolean = false;
 
   get label(): any { return this.$categoryForm.get('label'); }
   get description(): any { return this.$categoryForm.get('description'); }
@@ -28,6 +29,7 @@ export class CategoryDialogComponent implements OnInit {
     });
 
     if (this._categoryItem) {
+      this.$editMode = true;
       this.$categoryForm.patchValue(this._categoryItem)
     }
   }

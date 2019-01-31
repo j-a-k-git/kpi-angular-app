@@ -1,6 +1,6 @@
 <form [formGroup]="$categoryForm" (ngSubmit)="onSave()">
   <h2 mat-dialog-title>
-    <span [innerText]="$data ? 'Edit category' : 'Add category'"></span>
+    <span [innerText]="$editMode ? 'Edit category' : 'Add category'"></span>
     <mat-divider></mat-divider>
   </h2>
 
